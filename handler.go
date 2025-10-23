@@ -77,17 +77,19 @@ func (h *Handler) logError(err *ErrorWithID) {
 		return
 	}
 	
-	details := err.Details
-	if details == nil {
-		details = make(map[string]interface{})
+	// Copy user details (don't mutate original)
+	details := make(map[string]interface{})
+	if err.Details != nil {
+		for k, v := range err.Details {
+			details[k] = v
+		}
 	}
 	
+	// Add timestamp
 	details["timestamp"] = err.Timestamp
-	if err.StackTrace != "" {
-		details["stack_trace"] = err.StackTrace
-	}
 	
-	h.config.Logger.Error(err.ID, err.Original, err.Context, details)
+	// Log with stack trace as separate parameter (not in details)
+	h.config.Logger.Error(err.ID, err.Original, err.Context, details, err.StackTrace)
 }
 
 // safeCallback executes OnError callback with panic recovery

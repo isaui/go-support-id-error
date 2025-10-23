@@ -255,11 +255,12 @@ func TestCustomLogger(t *testing.T) {
 	var loggedDetails map[string]interface{}
 	
 	customLogger := &mockLogger{
-		errorFunc: func(errorID string, err error, context string, details map[string]interface{}) {
+		errorFunc: func(errorID string, err error, context string, details map[string]interface{}, stackTrace string) {
 			loggedErrorID = errorID
 			loggedError = err
 			loggedContext = context
 			loggedDetails = details
+			// stackTrace available but not tested here
 		},
 	}
 	
@@ -479,13 +480,13 @@ func TestTimestampSet(t *testing.T) {
 
 // Mock logger for testing
 type mockLogger struct {
-	errorFunc func(errorID string, err error, context string, details map[string]interface{})
+	errorFunc func(errorID string, err error, context string, details map[string]interface{}, stackTrace string)
 	infoFunc  func(msg string)
 }
 
-func (m *mockLogger) Error(errorID string, err error, context string, details map[string]interface{}) {
+func (m *mockLogger) Error(errorID string, err error, context string, details map[string]interface{}, stackTrace string) {
 	if m.errorFunc != nil {
-		m.errorFunc(errorID, err, context, details)
+		m.errorFunc(errorID, err, context, details, stackTrace)
 	}
 }
 

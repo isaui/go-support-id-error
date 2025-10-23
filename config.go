@@ -33,7 +33,9 @@ type Config struct {
 
 // Logger interface for custom logging implementations
 type Logger interface {
-	Error(errorID string, err error, context string, details map[string]interface{})
+	// Error logs an error with ID, context, and optional details
+	// stackTrace is passed separately to avoid polluting user details
+	Error(errorID string, err error, context string, details map[string]interface{}, stackTrace string)
 	Info(msg string)
 }
 
@@ -68,8 +70,15 @@ func NewDefaultLogger(out io.Writer) *DefaultLogger {
 }
 
 // Error logs error with ID and context
-func (l *DefaultLogger) Error(errorID string, err error, context string, details map[string]interface{}) {
-	l.logger.Printf("ID=%s | Context=%s | Error=%v | Details=%+v", errorID, context, err, details)
+func (l *DefaultLogger) Error(errorID string, err error, context string, details map[string]interface{}, stackTrace string) {
+	if stackTrace != "" {
+		// Include stack trace in log output
+		l.logger.Printf("ID=%s | Context=%s | Error=%v | Details=%+v | StackTrace=%s", 
+			errorID, context, err, details, stackTrace)
+	} else {
+		l.logger.Printf("ID=%s | Context=%s | Error=%v | Details=%+v", 
+			errorID, context, err, details)
+	}
 }
 
 // Info logs informational message

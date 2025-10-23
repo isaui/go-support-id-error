@@ -227,7 +227,7 @@ Potential additions (not implemented yet):
 
 ## Version History
 
-**v1.0.0** (Current)
+**v1.1.0** (Current)
 - Initial release
 - Singleton + Instance API
 - HTTP middleware

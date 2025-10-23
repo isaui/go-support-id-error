@@ -32,7 +32,7 @@ go-support-id-error/
 
 **config.go**
 - Configuration types and default settings
-- Logger interface for pluggable logging
+- Logger interface for pluggable logging (with separate stack trace parameter)
 - Default logger implementation using standard library
 
 **error_id.go**
@@ -150,6 +150,16 @@ go-support-id-error/
 
 **Implementation:** `Config.Environment` flag
 
+### 7. Stack Trace Separation
+
+**Rationale:** Keep user data clean
+- Stack trace is system metadata, not user data
+- Logger receives stack trace as separate parameter
+- `ErrorWithID.Details` map only contains user-provided data
+- Prevents pollution of user details with system information
+
+**Implementation:** Logger interface signature includes `stackTrace string` parameter
+
 ## Testing Strategy
 
 ### Unit Tests (error_id_test.go)
@@ -185,6 +195,8 @@ go-support-id-error/
 
 1. **Custom Logger**
    - Implement `Logger` interface
+   - Signature: `Error(errorID string, err error, context string, details map[string]interface{}, stackTrace string)`
+   - Stack trace passed separately from user details
    - Pass in `Config.Logger`
 
 2. **Custom ID Format**
@@ -193,7 +205,8 @@ go-support-id-error/
 
 3. **External Services**
    - Use `Config.OnError` callback
-   - Send to Sentry, Slack, etc.
+   - Send to Sentry, Slack, ELK, etc.
+   - Receives full `ErrorWithID` object with all fields
 
 4. **Custom Middleware**
    - Wrap `Handler.RecoveryMiddleware`
@@ -219,8 +232,10 @@ Potential additions (not implemented yet):
 - Singleton + Instance API
 - HTTP middleware
 - Configurable callbacks
-- Stack trace support
+- Stack trace support (separated from user details)
 - Zero dependencies
+- Logger interface with separate stack trace parameter
+- Clean separation between user data and system metadata
 
 ## Contributing
 
